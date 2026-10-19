@@ -205,7 +205,8 @@ function stundenAm(tag) {
   const plan = STUNDENPLAN[tag] || [];
   const stunden = [];
   plan.forEach((eintrag, i) => {
-    if (eintrag) {
+    // Nur Stunden mit bekanntem Fach und bekannter Uhrzeit
+    if (eintrag && STUNDEN[i] && FAECHER[eintrag[0]]) {
       stunden.push({ ...STUNDEN[i], tag, fachId: eintrag[0], raum: eintrag[1], fach: FAECHER[eintrag[0]] });
     }
   });
@@ -576,8 +577,9 @@ function willkommenHtml(i) {
     <div class="noten-karte willkommen stagger" style="--i:${i}">
       <span class="noten-titel">Willkommen</span>
       <h2>Noch kein Stundenplan</h2>
-      <p>Lade deinen Stundenplan, damit die App weiß, wann du welches Fach hast. Das geht mit einer <strong>Stundenplan-Datei</strong> oder einem <strong>Backup</strong> von einem anderen Gerät.</p>
-      <button type="button" class="knopf breit drueckbar" data-aktion="backup-waehlen">Datei auswählen</button>
+      <p>Damit die App weiß, wann du welches Fach hast, trag deinen Stundenplan <strong>selbst ein</strong>. Oder lade eine <strong>Stundenplan-Datei</strong> bzw. ein <strong>Backup</strong> von einem anderen Gerät.</p>
+      <button type="button" class="knopf breit drueckbar" data-aktion="editor-auf">Stundenplan selbst eintragen</button>
+      <button type="button" class="knopf breit zweit drueckbar willkommen-zweit" data-aktion="backup-waehlen">Datei auswählen</button>
       <p class="hinweis">Alles, was du einträgst, bleibt nur auf diesem Gerät.</p>
     </div>`;
 }
@@ -1131,6 +1133,8 @@ function einstellungenHtml() {
         <p class="hinweis">Länge einer Fokus-Runde. Danach folgen 5 Min. Pause, nach vier Runden 15 Min.</p>
       </div>
 
+      ${typeof editorBereichHtml === "function" ? editorBereichHtml() : ""}
+
       ${typeof backupBereichHtml === "function" ? backupBereichHtml() : ""}
 
       <h2 class="abschnitt stagger" style="--i:8">Über</h2>
@@ -1309,6 +1313,7 @@ function oeffneStatistik() {
   zustand.offenesFach = null;
   zustand.einstellungenOffen = false;
   zustand.statistikOffen = true;
+  zustand.editorOffen = false;
   zustand.statWoche = 0;
   seiteOeffnen(statistikHtml());
 }
@@ -1394,6 +1399,7 @@ function oeffneFach(id) {
   zustand.offenesFach = id;
   zustand.einstellungenOffen = false;
   zustand.statistikOffen = false;
+  zustand.editorOffen = false;
   seiteOeffnen(detailHtml(id));
   fachNotenRendern(id);
   fachAufgabenRendern(id);
@@ -1406,14 +1412,16 @@ function oeffneEinstellungen() {
   zustand.offenesFach = null;
   zustand.einstellungenOffen = true;
   zustand.statistikOffen = false;
+  zustand.editorOffen = false;
   seiteOeffnen(einstellungenHtml());
 }
 
 function schliesseSeite() {
-  if (!zustand.offenesFach && !zustand.einstellungenOffen && !zustand.statistikOffen) return;
+  if (!zustand.offenesFach && !zustand.einstellungenOffen && !zustand.statistikOffen && !zustand.editorOffen) return;
   zustand.offenesFach = null;
   zustand.einstellungenOffen = false;
   zustand.statistikOffen = false;
+  zustand.editorOffen = false;
   const detail = $("#detail");
   detail.classList.remove("offen");
   detail.setAttribute("aria-hidden", "true");
