@@ -7,8 +7,8 @@ const WOCHENTAGE = ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "
 const TAG_KURZ = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
 const MONATE = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
 const MONATE_KURZ = ["Jan.", "Feb.", "März", "Apr.", "Mai", "Juni", "Juli", "Aug.", "Sep.", "Okt.", "Nov.", "Dez."];
-const ANSICHTEN = ["heute", "woche", "aufgaben", "klausuren", "faecher"];
-const ANSICHT_NAMEN = { heute: "Heute", woche: "Woche", aufgaben: "Aufgaben", klausuren: "Klausuren", faecher: "Fächer" };
+const ANSICHTEN = ["heute", "woche", "aufgaben", "klausuren", "faecher", "fokus"];
+const ANSICHT_NAMEN = { heute: "Heute", woche: "Woche", aufgaben: "Aufgaben", klausuren: "Klausuren", faecher: "Fächer", fokus: "Fokus" };
 
 // Unter diesen Namen speichert die App ihre Daten im Browser
 const HA_SCHLUESSEL = "lb-hausaufgaben";
@@ -28,6 +28,7 @@ const zustand = {
   offenesFach: null,
   einstellungenOffen: false,
   statistikOffen: false,
+  anleitungOffen: false, // Anleitung „Apps sperren“ aus js/fokus.js
   statWoche: 0, // 0 = diese Woche, -1 = letzte Woche …
   sheet: null // null, "hausaufgabe", "klausur" oder "note"
 };
@@ -1139,7 +1140,7 @@ function einstellungenHtml() {
 
       <h2 class="abschnitt stagger" style="--i:8">Über</h2>
       <div class="liste stagger" style="--i:8">
-        <div class="infozeile"><span>Version</span><span>0.5</span></div>
+        <div class="infozeile"><span>Version</span><span>0.6</span></div>
         <div class="infozeile"><span>Speicherort</span><span>Nur in diesem Browser</span></div>
       </div>
       <p class="hinweis stagger" style="--i:9">Deine Hausaufgaben, Klausuren und Notizen bleiben auf diesem Gerät. Nichts wird ins Internet geschickt. Sichere sie deshalb ab und zu mit „Daten sichern“.</p>
@@ -1417,11 +1418,12 @@ function oeffneEinstellungen() {
 }
 
 function schliesseSeite() {
-  if (!zustand.offenesFach && !zustand.einstellungenOffen && !zustand.statistikOffen && !zustand.editorOffen) return;
+  if (!zustand.offenesFach && !zustand.einstellungenOffen && !zustand.statistikOffen && !zustand.editorOffen && !zustand.anleitungOffen) return;
   zustand.offenesFach = null;
   zustand.einstellungenOffen = false;
   zustand.statistikOffen = false;
   zustand.editorOffen = false;
+  zustand.anleitungOffen = false;
   const detail = $("#detail");
   detail.classList.remove("offen");
   detail.setAttribute("aria-hidden", "true");
@@ -1804,7 +1806,12 @@ function timerStarten(knopf) {
     fachId = klausur.fachId;
   }
 
-  if (timer && timer.aktiv) fokusAbrechnen(); // ein laufender Timer wird sauber beendet
+  // Eine laufende Fokus-Sitzung (Fokus-Tab) wird nicht einfach abgebrochen
+  if (timer && timer.art === "fokus" && !timer.fertig) {
+    zeigeToast("Deine Fokus-Zeit läuft noch");
+    return oeffneTimer();
+  }
+  if (timer && timer.aktiv && timer.art !== "fokus") fokusAbrechnen(); // ein laufender Timer wird sauber beendet
   tonVorbereiten();
 
   const dauer = phasenDauer("fokus");
@@ -1841,7 +1848,7 @@ function naechstePhase(abgeschlossen) {
 }
 
 function timerUmschalten() {
-  if (!timer) return;
+  if (!timer || timer.art === "fokus") return; // Fokus-Zeit lässt sich nicht pausieren
   tonVorbereiten();
   if (timer.laeuft) {
     timer.rest = restSekunden();
@@ -1856,7 +1863,7 @@ function timerUmschalten() {
 
 // Restzeit um ±5 Minuten ändern (mindestens 1 Minute bleibt übrig)
 function timerAnpassen(minutenDelta) {
-  if (!timer) return;
+  if (!timer || timer.art === "fokus") return;
   const rest = restSekunden();
   const neu = Math.max(60, rest + minutenDelta * 60);
   timer.dauer = Math.max(timer.dauer + (neu - rest), neu);
@@ -1868,7 +1875,8 @@ function timerAnpassen(minutenDelta) {
 
 function timerStoppen() {
   if (!timer) return;
-  fokusAbrechnen();
+  if (timer.art === "fokus") fokusSitzungBeenden(); // speichert die Sitzung und hebt die Sperre auf (js/fokus.js)
+  else fokusAbrechnen();
   timer = null;
   timerSpeichern();
   schliesseTimer();
@@ -1878,8 +1886,9 @@ function timerStoppen() {
 
 // „Aufgabe erledigt“: Hausaufgabe abhaken bzw. Lernblock als gelernt markieren
 function timerErledigt() {
-  if (!timer) return;
+  if (!timer || !timer.bezug) return; // freies Lernen im Fokus-Tab hat keine Aufgabe
   const { bezug } = timer;
+  timer.erledigt = true;
   if (bezug.typ === "ha") {
     const liste = hausaufgaben();
     const aufgabe = liste.find((a) => a.id === bezug.id);
@@ -1897,6 +1906,7 @@ function timerErledigt() {
 }
 
 function timerHtml() {
+  if (timer.art === "fokus") return fokusTimerHtml(); // eigene Ansicht für die Fokus-Zeit (js/fokus.js)
   const fach = FAECHER[timer.fachId] || { name: "" };
   const istFokus = timer.phase === "fokus";
   const geschafft = istFokus ? timer.runde % 4 : timer.runde % 4 || (timer.runde ? 4 : 0);
@@ -1951,8 +1961,12 @@ function timerRendern() {
 
 // Läuft viermal pro Sekunde: Zeit, Ring und Mini-Pille aktualisieren
 function timerTick() {
-  if (!timer || !timer.aktiv) return;
-  if (timer.laeuft && Date.now() >= timer.ende) return naechstePhase(true);
+  if (!timer || !timer.aktiv || timer.fertig) return;
+  if (timer.laeuft && Date.now() >= timer.ende) {
+    if (timer.art !== "fokus") return naechstePhase(true);
+    if (typeof fokusGeschafft === "function") fokusGeschafft(true);
+    return;
+  }
 
   const rest = restSekunden();
   const zeit = uhr(rest);
@@ -1969,6 +1983,7 @@ function timerTick() {
   const miniZeit = $("#timer-mini .mini-zeit");
   if (miniZeit) miniZeit.textContent = zeit;
   document.title = `${zeit} · ${PHASEN[timer.phase]}`;
+  if (timer.art === "fokus" && typeof fokusTick === "function") fokusTick(rest);
 }
 
 function miniAktualisieren() {
@@ -1977,7 +1992,7 @@ function miniAktualisieren() {
   if (zeigen) {
     mini.innerHTML = `
       <span class="punkt ${timer.laeuft ? "" : "steht"}"></span>
-      <span class="mini-zeit">${uhr(restSekunden())}</span>
+      <span class="mini-zeit">${timer.fertig ? "Geschafft ✓" : uhr(restSekunden())}</span>
       <span class="mini-titel">${esc(timer.phase === "fokus" ? timer.titel : PHASEN[timer.phase])}</span>`;
   }
   mini.classList.toggle("sichtbar", zeigen);
@@ -2009,7 +2024,8 @@ function timerLaden() {
     return;
   }
   // Ist die Phase abgelaufen, während die App zu war? Dann pausiert in die nächste Phase.
-  if (timer.laeuft && Date.now() >= timer.ende) {
+  // (Eine abgelaufene Fokus-Zeit schließt js/fokus.js beim Start ab.)
+  if (timer.art !== "fokus" && timer.laeuft && Date.now() >= timer.ende) {
     if (timer.phase === "fokus") {
       timer.runde++;
       fokusGutschreiben(Math.round(timer.dauer / 60), timer.fachId);

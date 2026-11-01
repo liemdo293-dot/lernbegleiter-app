@@ -146,7 +146,8 @@ textarea {
 #ansicht-heute,
 #ansicht-aufgaben,
 #ansicht-klausuren,
-#ansicht-faecher {
+#ansicht-faecher,
+#ansicht-fokus {
   max-width: 680px;
   margin: 0 auto;
 }
@@ -842,8 +843,9 @@ textarea {
   left: 50%;
   bottom: calc(18px + env(safe-area-inset-bottom));
   z-index: 20;
+  --tab-breite: 57px; /* 6 Tabs passen so auch aufs kleine iPhone */
   display: grid;
-  grid-template-columns: repeat(5, 66px);
+  grid-template-columns: repeat(6, var(--tab-breite));
   padding: 6px;
   border-radius: 999px;
   background: var(--glas);
@@ -864,7 +866,7 @@ textarea {
   top: 6px;
   bottom: 6px;
   left: 6px;
-  width: 66px;
+  width: var(--tab-breite);
   border-radius: 999px;
   background: var(--akzent);
   transform: translateX(calc(var(--pos, 0) * 100%));
@@ -879,10 +881,21 @@ textarea {
   align-items: center;
   gap: 2px;
   padding: 8px 0 7px;
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 600;
+  letter-spacing: -0.01em;
   color: var(--text-2);
   transition: color 0.4s var(--feder), transform 0.3s var(--feder);
+}
+
+@media (min-width: 400px) {
+  .tabbar {
+    --tab-breite: 62px;
+  }
+
+  .tab {
+    font-size: 11px;
+  }
 }
 
 .tab svg {
@@ -2745,7 +2758,385 @@ textarea {
   margin: 0 4px;
 }
 
-/* ---------- 24. Weniger Bewegung, wenn das Gerät es wünscht ---------- */
+/* ---------- 24. Fokus ---------- */
+
+/* Dauer wählen */
+.fokus-karte {
+  padding: 22px 20px 20px;
+  text-align: center;
+}
+
+.fokus-dauer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 22px;
+  margin: 12px 0 2px;
+}
+
+.fokus-dauer .rund-knopf.klein {
+  width: 44px;
+  height: 44px;
+}
+
+.fokus-dauer .rund-knopf.klein svg {
+  width: 18px;
+  height: 18px;
+}
+
+.fokus-zahl {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 150px;
+  font-size: 76px;
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+}
+
+.fokus-zahl small {
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--text-2);
+}
+
+#fokus-zahl {
+  display: inline-block;
+}
+
+@keyframes fokus-tick {
+  from { opacity: 0.4; transform: scale(0.92); }
+  to { opacity: 1; transform: none; }
+}
+
+#fokus-zahl.tick {
+  animation: fokus-tick 0.35s var(--feder);
+}
+
+.fokus-bis {
+  margin: 8px 0 18px;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-2);
+}
+
+.fokus-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.fokus-chips .chip {
+  justify-content: center;
+  min-width: 48px;
+  padding: 8px 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Fach und Aufgabe wählen */
+.chips.fokus-faecher {
+  margin: 0 -16px;
+  padding: 2px 16px 4px;
+}
+
+.fokus-aufgaben {
+  margin-top: 12px;
+}
+
+.fokus-aufgabe {
+  width: 100%;
+}
+
+.fokus-aufgabe.gewaehlt .haken {
+  background: var(--akzent);
+  border-color: var(--akzent);
+}
+
+.fokus-aufgabe.gewaehlt .haken svg {
+  stroke-dashoffset: 0;
+}
+
+/* Schalter im iOS-Stil */
+button.infozeile {
+  width: 100%;
+}
+
+.schalter-zeile {
+  align-items: center;
+}
+
+.schalter-zeile small {
+  display: block;
+  font-size: 13px;
+  color: var(--text-2);
+}
+
+.schalter {
+  position: relative;
+  flex-shrink: 0;
+  width: 51px;
+  height: 31px;
+  border-radius: 999px;
+  background: var(--flaeche-3);
+  transition: background-color 0.35s var(--feder);
+}
+
+.schalter::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 27px;
+  height: 27px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  transition: transform 0.35s var(--feder), background-color 0.35s var(--feder);
+}
+
+.schalter.an {
+  background: var(--akzent);
+}
+
+.schalter.an::after {
+  transform: translateX(20px);
+  background: var(--akzent-text);
+}
+
+.fokus-start {
+  margin-top: 28px;
+}
+
+.fokus-hero-zeit {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Letzte Sitzungen */
+.fokus-verlauf .thema + .thema::before {
+  left: 74px;
+}
+
+.sitzung.abgebrochen .thema-text {
+  color: var(--text-2);
+}
+
+/* Vollbild während der Fokus-Zeit */
+.fokus-schloss {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--flaeche-2);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.fokus-schloss svg {
+  width: 14px;
+  height: 14px;
+}
+
+.fokus-modus .timer-ring {
+  margin-bottom: 18px;
+}
+
+.fokus-spruch {
+  margin: 0 0 30px;
+  font-size: 15px;
+  color: var(--text-2);
+}
+
+.halten-knopf {
+  position: relative;
+  min-width: 240px;
+  margin-bottom: 18px;
+  padding: 16px 26px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--flaeche-2);
+  font-weight: 600;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: manipulation;
+  transition: transform 0.3s var(--feder);
+}
+
+.halten-knopf:active {
+  transform: scale(0.97);
+}
+
+.halten-fuellung {
+  position: absolute;
+  inset: 0;
+  background: var(--akzent);
+  transform-origin: left;
+  transform: scaleX(0);
+  transition: transform 0.25s var(--feder);
+}
+
+.halten-knopf.haelt .halten-fuellung {
+  transform: scaleX(1);
+  transition: transform 1.5s linear;
+}
+
+.halten-text {
+  position: relative;
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.2s;
+}
+
+.halten-knopf.haelt .halten-text {
+  color: var(--akzent-text);
+  transition: color 0.3s 0.6s;
+}
+
+.halten-text svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* „Geschafft“ */
+.fokus-fertig-symbol {
+  display: block;
+  width: 92px;
+  height: 92px;
+  margin-bottom: 18px;
+}
+
+.fokus-fertig-symbol svg {
+  width: 100%;
+  height: 100%;
+}
+
+@keyframes zeichnen {
+  to { stroke-dashoffset: 0; }
+}
+
+.fokus-fertig-symbol circle {
+  stroke-dasharray: 126;
+  stroke-dashoffset: 126;
+  animation: zeichnen 0.9s var(--feder) 0.1s forwards;
+}
+
+.fokus-fertig-symbol path {
+  stroke-dasharray: 28;
+  stroke-dashoffset: 28;
+  animation: zeichnen 0.5s var(--feder) 0.75s forwards;
+}
+
+.fokus-fertig .kacheln {
+  width: 100%;
+  margin: 28px 0 8px;
+}
+
+.fokus-fertig .knopf.breit {
+  margin-top: 12px;
+}
+
+.fokus-nochmal {
+  margin-top: 20px;
+}
+
+/* Anleitung „Apps sperren“ */
+.anleitung-intro {
+  margin: 0 0 12px;
+  line-height: 1.5;
+}
+
+.anleitung-namen {
+  margin: 14px 0 0;
+}
+
+.anleitung-warnung {
+  margin: 0 4px 14px;
+  color: var(--text);
+}
+
+.schritt {
+  margin-top: 12px;
+  padding: 16px 18px 18px;
+}
+
+.schritt-kopf {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 10px;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.schritt-nr {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--akzent);
+  color: var(--akzent-text);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.schritt-liste {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.schritt-liste li {
+  position: relative;
+  padding-left: 40px;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--text-2);
+}
+
+.anleitung-intro + .schritt-liste li {
+  padding-left: 18px;
+}
+
+.schritt-liste li + li {
+  margin-top: 8px;
+}
+
+.schritt-liste li::before {
+  content: "";
+  position: absolute;
+  top: 0.65em;
+  left: 12px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--text-3);
+}
+
+.anleitung-intro + .schritt-liste li::before {
+  left: 2px;
+}
+
+.schritt-liste b {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.anleitung .knopf.breit {
+  margin-top: 12px;
+}
+
+/* ---------- 25. Weniger Bewegung, wenn das Gerät es wünscht ---------- */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

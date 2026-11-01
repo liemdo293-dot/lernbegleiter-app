@@ -55,6 +55,7 @@ function backupUebersicht(daten) {
     ["Klausuren", anzahl("lb-klausuren")],
     ["Noten", anzahl("lb-noten")],
     ["Quiz-Ergebnisse", anzahl("lb-quiz")],
+    ["Fokus-Sitzungen", anzahl("lb-sitzungen")],
     ["Lernthemen", themen],
     ["Notizen", notizen],
     ["Lernzeit", lernzeit ? dauerText(lernzeit) : 0]

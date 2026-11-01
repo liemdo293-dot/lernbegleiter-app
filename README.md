@@ -11,6 +11,7 @@ Eine Lern-App für die Oberstufe: Stundenplan, Hausaufgaben, Klausuren, Noten, L
 - **Aufgaben:** Hausaufgaben mit Fälligkeit „nächste Stunde“
 - **Klausuren:** Countdown und automatische Lernblöcke
 - **Fächer:** Noten von 0 bis 15 Punkten, Schnitt pro Fach
+- **Fokus:** Lernzeit am Stück mit großem Timer – auf dem iPhone sperrt sie auf Wunsch ablenkende Apps (über die Kurzbefehle-App, Anleitung in der App)
 - **Lern-Timer, Statistik und KI-Quiz**
 
 ## Datenschutz

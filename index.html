@@ -42,6 +42,7 @@
       <section class="ansicht" id="ansicht-aufgaben" data-ansicht="aufgaben"></section>
       <section class="ansicht" id="ansicht-klausuren" data-ansicht="klausuren"></section>
       <section class="ansicht" id="ansicht-faecher" data-ansicht="faecher"></section>
+      <section class="ansicht" id="ansicht-fokus" data-ansicht="fokus"></section>
     </main>
 
     <!-- Die Fachseite, die von rechts hereingleitet -->
@@ -87,6 +88,10 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="6.5" height="6.5" rx="1.8"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.8"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.8"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.8"/></svg>
         Fächer
       </button>
+      <button class="tab" data-ziel="fokus">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="0.8" fill="currentColor"/></svg>
+        Fokus
+      </button>
     </nav>
   </div>
 
@@ -95,6 +100,7 @@
   <script src="js/quiz.js"></script>
   <script src="js/backup.js"></script>
   <script src="js/stundenplan.js"></script>
+  <script src="js/fokus.js"></script>
   <script>
     // Offline-Speicher einschalten – nur wenn die App aus dem Internet kommt, nicht per Doppelklick
     if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
