@@ -469,13 +469,17 @@ function aufgabeHtml(a, zeigeFach, start) {
   const teile = [];
   if (zeigeFach) teile.push(fach.name);
   teile.push(ueberfaellig ? `Überfällig seit ${faelligText(a.faellig)}` : `Fällig ${faelligText(a.faellig)}`);
-  if (start !== undefined) teile.push(`${a.dauer || 30} Min.`);
+  // Aufgabe mit fertigem Quiz (js/lernset.js): Fortschritt statt Dauer
+  const lernsetName = a.quizSet && typeof lernsetFortschrittText === "function" ? a.quizSet : null;
+  if (lernsetName) teile.push(lernsetFortschrittText(lernsetName));
+  else if (start !== undefined) teile.push(`${a.dauer || 30} Min.`);
 
   return `
     <div class="thema aufgabe ${a.erledigt ? "erledigt" : ""} ${ueberfaellig ? "ueberfaellig" : ""}" data-aufgabe="${a.id}">
       ${start !== undefined ? `<span class="plan-zeit">${start === null ? "" : zeitText(start)}</span>` : ""}
       <button class="haken" data-aktion="ha-abhaken" aria-label="Als erledigt markieren" aria-pressed="${a.erledigt}">${SYMBOL.haken}</button>
       <span class="thema-text">${esc(a.text)}<small class="aufgabe-meta">${esc(teile.join(" · "))}</small></span>
+      ${lernsetName ? lernsetKnopfHtml(lernsetName) : ""}
       ${start === undefined
         ? `<button class="entfernen" data-aktion="ha-entfernen" aria-label="Hausaufgabe löschen">${SYMBOL.kreuz}</button>`
         : start !== null ? playKnopfHtml() : ""}
@@ -1140,7 +1144,7 @@ function einstellungenHtml() {
 
       <h2 class="abschnitt stagger" style="--i:8">Über</h2>
       <div class="liste stagger" style="--i:8">
-        <div class="infozeile"><span>Version</span><span>0.6</span></div>
+        <div class="infozeile"><span>Version</span><span>0.7</span></div>
         <div class="infozeile"><span>Speicherort</span><span>Nur in diesem Browser</span></div>
       </div>
       <p class="hinweis stagger" style="--i:9">Deine Hausaufgaben, Klausuren und Notizen bleiben auf diesem Gerät. Nichts wird ins Internet geschickt. Sichere sie deshalb ab und zu mit „Daten sichern“.</p>
@@ -2055,6 +2059,12 @@ function aufgabeUmschalten(knopf) {
   const liste = hausaufgaben();
   const aufgabe = liste.find((a) => a.id === zeile.dataset.aufgabe);
   if (!aufgabe) return;
+
+  // Eine Quiz-Aufgabe hakt sich selbst ab, sobald alle Fragen sitzen
+  if (aufgabe.quizSet && !aufgabe.erledigt && typeof lernsetFortschritt === "function") {
+    const f = lernsetFortschritt(aufgabe.quizSet);
+    if (f && f.sitzen < f.gesamt) return zeigeToast(`Erledigt sich von selbst, wenn alle ${f.gesamt} Fragen sitzen`);
+  }
 
   aufgabe.erledigt = !aufgabe.erledigt;
   aufgabe.erledigtAm = aufgabe.erledigt ? Date.now() : null;

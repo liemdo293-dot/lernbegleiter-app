@@ -49,6 +49,9 @@ function backupUebersicht(daten) {
     .reduce((summe, s) => summe + (Array.isArray(daten[s]) ? daten[s].length : 0), 0);
   const notizen = Object.keys(daten).filter((s) => s.startsWith("lb-notizen-") && String(daten[s] || "").trim()).length;
   const lernzeit = Object.values(daten["lb-fokus"] || {}).reduce((summe, tag) => summe + ((tag && tag.minuten) || 0), 0);
+  // Lernsets (js/lernset.js): wie viele Fragen sitzen schon?
+  const lernsets = Object.values((daten["lb-quiz-sets"] || {}).sets || {});
+  const sitzen = lernsets.reduce((summe, set) => summe + Object.values((set && set.fragen) || {}).filter((f) => f && f.sitzt).length, 0);
 
   return [
     ["Hausaufgaben", anzahl("lb-hausaufgaben")],
@@ -56,6 +59,7 @@ function backupUebersicht(daten) {
     ["Noten", anzahl("lb-noten")],
     ["Quiz-Ergebnisse", anzahl("lb-quiz")],
     ["Fokus-Sitzungen", anzahl("lb-sitzungen")],
+    ["Lernset-Fragen, die sitzen", sitzen],
     ["Lernthemen", themen],
     ["Notizen", notizen],
     ["Lernzeit", lernzeit ? dauerText(lernzeit) : 0]

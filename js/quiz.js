@@ -596,6 +596,7 @@ function quizBereichRendern(fachId) {
     : '<div class="liste"><p class="leer">Noch kein Quiz. Erstelle eins aus deinen Lernthemen.</p></div>';
 
   ziel.innerHTML = `
+    ${typeof lernsetBereichHtml === "function" ? lernsetBereichHtml(fachId) : ""}
     ${liste}
     <div class="quiz-start-knoepfe">
       <button class="knopf drueckbar" data-aktion="quiz-auf">Quiz erstellen</button>

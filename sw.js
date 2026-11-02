@@ -6,7 +6,7 @@
 // Wichtig: Bei jeder neuen Version die Nummer in CACHE_NAME erhöhen.
 // ==========================================================
 
-const CACHE_NAME = "lernbegleiter-v3";
+const CACHE_NAME = "lernbegleiter-v4";
 
 const APP_DATEIEN = [
   "./",
@@ -16,6 +16,8 @@ const APP_DATEIEN = [
   "./js/daten.js",
   "./js/app.js",
   "./js/quiz.js",
+  "./js/quiz-sets.js",
+  "./js/lernset.js",
   "./js/backup.js",
   "./js/stundenplan.js",
   "./js/fokus.js",

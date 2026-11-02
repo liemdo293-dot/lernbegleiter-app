@@ -3136,7 +3136,168 @@ button.infozeile {
   margin-top: 12px;
 }
 
-/* ---------- 25. Weniger Bewegung, wenn das Gerät es wünscht ---------- */
+/* ---------- 25. Lernsets (fertige Quiz-Sets) ---------- */
+
+/* Kleiner „Quiz“-Knopf an der Aufgabe */
+.lernset-knopf {
+  flex-shrink: 0;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: var(--akzent);
+  color: var(--akzent-text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Übersicht: ein Balken pro Frage */
+.lernset-karte .schnitt-zahl {
+  flex-wrap: wrap;
+}
+
+.lernset-sitze {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9px, 1fr));
+  gap: 3px;
+  margin: 16px 0 12px;
+}
+
+.lernset-sitze span,
+.lernset-legende i {
+  height: 18px;
+  border-radius: 3px;
+  background: var(--flaeche-3);
+  transition: background-color 0.4s var(--feder);
+}
+
+.lernset-sitze .wackelt,
+.lernset-legende .wackelt {
+  background: var(--text-2);
+}
+
+.lernset-sitze .sitzt,
+.lernset-legende .sitzt {
+  background: var(--text);
+}
+
+.lernset-legende {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  font-size: 13px;
+  color: var(--text-2);
+}
+
+.lernset-legende span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.lernset-legende i {
+  width: 10px;
+  height: 10px;
+}
+
+/* Themenfilter: Chips brechen um, statt seitlich zu scrollen */
+.lernset-themen {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.lernset-themen .chip {
+  white-space: normal;
+}
+
+.lernset-regel {
+  margin: 18px 4px 0;
+}
+
+.lernset-reset {
+  display: block;
+  margin: 22px auto 0;
+  font-size: 14px;
+}
+
+.lernset-bestaetigen {
+  display: grid;
+  gap: 10px;
+  margin-top: 22px;
+  padding: 16px;
+  border-radius: var(--radius);
+  background: var(--flaeche);
+  box-shadow: var(--schatten);
+  text-align: center;
+}
+
+.lernset-bestaetigen .knopf {
+  padding: 13px;
+}
+
+/* Rückmeldung nach dem Antworten */
+.lernset-urteil {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.lernset-info {
+  display: block;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--linie);
+  font-size: 14px;
+  color: var(--text-2);
+}
+
+.lernset-punkte {
+  display: inline-flex;
+  gap: 4px;
+  margin: 0 2px;
+  vertical-align: 1px;
+}
+
+.lernset-punkte i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--flaeche-3);
+}
+
+.lernset-punkte i.voll {
+  background: var(--text);
+}
+
+/* Rundenende */
+.lernset-kacheln {
+  margin: 24px 0 8px;
+  text-align: left;
+}
+
+.lernset-fehlerzahl {
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* Auf der Fachseite */
+.lernset-liste {
+  margin-bottom: 12px;
+}
+
+.lernset-zeile {
+  width: 100%;
+}
+
+.lernset-zeile .pfeil {
+  width: 8px;
+  height: 14px;
+  color: var(--text-3);
+}
+
+.lernset-zeile + .lernset-zeile::before {
+  left: 68px;
+}
+
+/* ---------- 26. Weniger Bewegung, wenn das Gerät es wünscht ---------- */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
